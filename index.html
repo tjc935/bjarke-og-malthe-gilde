@@ -204,19 +204,56 @@
   .body-text .hl {
     background: #fff; padding: 0 5px; font-style: italic; font-weight: 600;
   }
+  .body-text strong {
+    font-weight: 600; font-style: italic; color: #c8102e;
+  }
 
   .menu {
-    margin: 20px auto; padding: 14px 18px;
-    border-top: 2px solid #3a1a1a; border-bottom: 2px solid #3a1a1a;
-    max-width: 420px;
+    position: relative;
+    margin: 28px auto; padding: 26px 20px 22px;
+    background: #fff;
+    border: 2.5px solid #3a1a1a;
+    box-shadow: 6px 6px 0 #3a1a1a;
+    max-width: 460px;
+  }
+  .menu::before {
+    content: "på menuen";
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: #fbeede;
+    padding: 2px 16px;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 11px; letter-spacing: 6px; color: #c8102e;
+    text-transform: uppercase;
+    border: 2px solid #3a1a1a;
+    border-radius: 999px;
+    white-space: nowrap;
   }
   .menu .big {
+    font-family: 'DM Serif Display', serif; font-weight: 400;
+    font-size: clamp(32px, 7.5vw, 44px); line-height: 1;
+    color: #3a1a1a; letter-spacing: -1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .menu .time {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 17px; color: #3a1a1a;
+    margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .menu .time::before, .menu .time::after {
+    content: ""; height: 1px; background: #3a1a1a; opacity: 0.3; flex: 0 0 30px;
+  }
+  .menu .aye {
     font-family: 'DM Serif Display', serif; font-style: italic;
-    font-size: 26px; color: #3a1a1a; line-height: 1;
+    font-weight: 400;
+    font-size: clamp(24px, 6vw, 32px); line-height: 1;
+    color: #c8102e;
+    margin-bottom: 2px;
   }
   .menu .sub {
-    font-family: 'Inter', sans-serif; font-size: 12px; letter-spacing: 4px;
-    color: #c25641; text-transform: uppercase; margin-top: 4px;
+    font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 5px;
+    color: #3a1a1a; text-transform: uppercase; opacity: 0.7;
   }
 
   .sign-l {
@@ -423,9 +460,16 @@
       på Skovlunden 90 i Thyregod.
     </div>
 
+    <div class="body-text">
+      Vi har bestilt <strong>Røde Lone</strong> fra kl. 13–15 — så der er
+      <span class="hl">all you can eat i 2 timer</span>.
+    </div>
+
     <div class="menu">
-      <div class="big">Røde Lone · all you can eat</div>
-      <div class="sub">kl. 13 — 15</div>
+      <div class="big">Røde Lone</div>
+      <div class="time">kl. 13 — 15</div>
+      <div class="aye">All you can eat</div>
+      <div class="sub">i 2 timer</div>
     </div>
 
     <div class="body-text">
