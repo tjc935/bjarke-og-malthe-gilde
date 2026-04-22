@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bjarke & Malthes studentergilde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: 'Fraunces', serif; color: #3a1a1a;
+    background:
+      radial-gradient(ellipse at 20% 10%, #ffc58d 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 95%, #f47a6a 0%, transparent 55%),
+      linear-gradient(160deg, #ffd6b3 0%, #ffa98e 45%, #e8756f 100%);
+    min-height: 100vh; min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  #confetti-canvas {
+    position: fixed; inset: 0; pointer-events: none; z-index: 100;
+  }
+
+  /* ============ STAGE 1: Envelope ============ */
+  .stage-envelope {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 20px;
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .stage-envelope.gone { opacity: 0; transform: scale(.9) translateY(-30px); pointer-events: none; }
+
+  .env-tagline {
+    font-family: 'Inter', sans-serif; font-weight: 500;
+    font-size: 13px; letter-spacing: 8px; color: #3a1a1a;
+    text-transform: uppercase; margin-bottom: 20px; opacity: 0.8;
+  }
+
+  .envelope {
+    position: relative;
+    width: min(420px, 90vw);
+    aspect-ratio: 3 / 2;
+    background: #fbeede;
+    border: 3px solid #3a1a1a;
+    box-shadow: 14px 14px 0 #3a1a1a;
+    cursor: grab; touch-action: none;
+    user-select: none;
+  }
+  .envelope:active { cursor: grabbing; }
+
+  .envelope::before, .envelope::after {
+    content: ""; position: absolute; background: #3a1a1a;
+  }
+  /* crossing lines inside envelope (paper look) */
+  .envelope::before {
+    left: 0; top: 0; width: 100%; height: 100%;
+    background:
+      linear-gradient(45deg, transparent 49.4%, rgba(58,26,26,0.18) 49.6%, rgba(58,26,26,0.18) 50.4%, transparent 50.6%),
+      linear-gradient(-45deg, transparent 49.4%, rgba(58,26,26,0.18) 49.6%, rgba(58,26,26,0.18) 50.4%, transparent 50.6%);
+  }
+  .envelope::after { display: none; }
+
+  /* Flap */
+  .flap {
+    position: absolute; top: -3px; left: -3px; right: -3px;
+    width: calc(100% + 6px);
+    height: 50%;
+    background: #f47a6a;
+    border: 3px solid #3a1a1a;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform .9s cubic-bezier(.6,-.2,.3,1.4);
+    z-index: 3;
+  }
+  .envelope.opening .flap { transform: rotateX(180deg); }
+
+  /* Wax seal */
+  .seal {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110px; height: 110px;
+    background: radial-gradient(circle at 35% 35%, #ff9a7a 0%, #c8102e 55%, #8b0a22 100%);
+    border: 3px solid #3a1a1a;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-style: italic;
+    font-size: 34px; color: #fbeede;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+    z-index: 4;
+    animation: seal-pulse 2.2s ease-in-out infinite;
+    cursor: grab;
+  }
+  .seal::before {
+    content: ""; position: absolute; inset: 8px;
+    border: 2px dashed rgba(251,238,222,0.5); border-radius: 50%;
+  }
+  @keyframes seal-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.06); }
+  }
+  .envelope.opening .seal { animation: seal-break .5s forwards; }
+  @keyframes seal-break {
+    0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    40%  { transform: translate(-50%, -50%) scale(1.2) rotate(-15deg); opacity: 1; }
+    100% { transform: translate(-50%, 30%) scale(0.6) rotate(-45deg); opacity: 0; }
+  }
+
+  .hint {
+    margin-top: 26px;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 20px; color: #3a1a1a;
+    opacity: 0.85;
+    animation: hint-bob 2s ease-in-out infinite;
+  }
+  @keyframes hint-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+  }
+
+  /* ============ STAGE 2: Invitation ============ */
+  .stage-invite {
+    min-height: 100vh; min-height: 100dvh;
+    padding: 40px 16px 60px;
+    display: none;
+    animation: card-rise .9s .3s both cubic-bezier(.3,.7,.3,1.2);
+  }
+  .stage-invite.show { display: block; }
+  @keyframes card-rise {
+    from { opacity: 0; transform: translateY(60px) scale(.9); }
+    to   { opacity: 1; transform: translateY(0)     scale(1); }
+  }
+
+  .card {
+    position: relative;
+    max-width: 640px; margin: 0 auto;
+    background: #fbeede;
+    border: 3px solid #3a1a1a;
+    box-shadow: 14px 14px 0 #3a1a1a;
+    padding: 48px 36px 40px;
+    text-align: center;
+  }
+
+  /* corner ornaments (simplified for web) */
+  .card svg.corn { position: absolute; pointer-events: none; }
+  .card svg.tl { top: -4px; left: -4px; }
+  .card svg.br { bottom: -4px; right: -4px; transform: rotate(180deg); }
+
+  .topline {
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 11px; letter-spacing: 7px; color: #3a1a1a;
+    text-transform: uppercase; margin-bottom: 10px; opacity: 0.8;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif; font-weight: 400;
+    font-size: clamp(56px, 14vw, 110px); line-height: 0.95;
+    color: #3a1a1a; letter-spacing: -2px;
+    margin: 4px 0 10px;
+  }
+  h1 .amp {
+    display: block; font-style: italic; color: #fbeede;
+    -webkit-text-stroke: 2px #3a1a1a;
+    font-size: 0.85em; margin: 4px 0;
+  }
+  .tag {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 20px; color: #3a1a1a; margin-bottom: 26px;
+  }
+
+  .ticket {
+    background: #fff; border: 2px solid #3a1a1a;
+    padding: 18px 14px; margin: 20px 0;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px; align-items: center;
+  }
+  .tcol .l {
+    font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 3px;
+    color: #c25641; text-transform: uppercase; margin-bottom: 2px;
+  }
+  .tcol .v {
+    font-family: 'DM Serif Display', serif; font-size: 20px; line-height: 1.1;
+    color: #3a1a1a;
+  }
+  .tcol .s {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 13px;
+    color: #3a1a1a;
+  }
+
+  .body-text {
+    font-family: 'Fraunces', serif; font-size: 16px; line-height: 1.55;
+    color: #3a1a1a; margin: 18px 0;
+  }
+  .body-text .hl {
+    background: #fff; padding: 0 5px; font-style: italic; font-weight: 600;
+  }
+
+  .menu {
+    margin: 20px auto; padding: 14px 18px;
+    border-top: 2px solid #3a1a1a; border-bottom: 2px solid #3a1a1a;
+    max-width: 420px;
+  }
+  .menu .big {
+    font-family: 'DM Serif Display', serif; font-style: italic;
+    font-size: 26px; color: #3a1a1a; line-height: 1;
+  }
+  .menu .sub {
+    font-family: 'Inter', sans-serif; font-size: 12px; letter-spacing: 4px;
+    color: #c25641; text-transform: uppercase; margin-top: 4px;
+  }
+
+  .sign-l {
+    font-family: 'Inter', sans-serif; font-weight: 500;
+    font-size: 11px; letter-spacing: 5px; color: #3a1a1a;
+    text-transform: uppercase; margin-top: 18px; margin-bottom: 2px;
+  }
+  .sign {
+    font-family: 'DM Serif Display', serif; font-style: italic;
+    font-size: 34px; color: #3a1a1a;
+  }
+
+  /* ===== Action buttons ===== */
+  .actions {
+    max-width: 640px; margin: 30px auto 0;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 16px 10px;
+    background: #fbeede; color: #3a1a1a;
+    border: 2px solid #3a1a1a; border-radius: 14px;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+    text-decoration: none;
+    box-shadow: 5px 5px 0 #3a1a1a;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 #3a1a1a; }
+  .btn svg { width: 22px; height: 22px; }
+
+  .rsvp-note {
+    max-width: 640px; margin: 20px auto;
+    font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 2px;
+    color: #3a1a1a; text-transform: uppercase; text-align: center;
+    padding: 10px 18px; border: 2px dashed #3a1a1a; border-radius: 999px;
+    background: rgba(251,238,222,0.5);
+  }
+
+  /* print */
+  @media print {
+    body { background: white; }
+    .stage-envelope, .actions, .rsvp-note, #confetti-canvas, .hint { display: none !important; }
+    .stage-invite { display: block !important; padding: 0; }
+    .card { box-shadow: none; border-width: 2px; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ============ STAGE 1: Envelope ============ -->
+<section class="stage-envelope" id="stageEnv">
+  <div class="env-tagline">En invitation til dig</div>
+
+  <div class="envelope" id="envelope">
+    <div class="flap"></div>
+    <div class="seal" id="seal">B&amp;M</div>
+  </div>
+
+  <div class="hint">Tryk eller træk i seglet for at åbne</div>
+</section>
+
+<!-- ============ STAGE 2: Invitation ============ -->
+<section class="stage-invite" id="stageInv">
+  <div class="card">
+    <svg class="corn tl" width="80" height="80" viewBox="0 0 80 80">
+      <g fill="#e8c547" stroke="#3a1a1a" stroke-width="2">
+        <circle cx="25" cy="25" r="8"/>
+        <ellipse cx="25" cy="8"  rx="4" ry="9"/>
+        <ellipse cx="42" cy="25" rx="9" ry="4"/>
+        <ellipse cx="25" cy="42" rx="4" ry="9"/>
+        <ellipse cx="8"  cy="25" rx="9" ry="4"/>
+      </g>
+    </svg>
+    <svg class="corn br" width="80" height="80" viewBox="0 0 80 80">
+      <g fill="#f47a6a" stroke="#3a1a1a" stroke-width="2">
+        <circle cx="25" cy="25" r="8"/>
+        <ellipse cx="25" cy="8"  rx="4" ry="9"/>
+        <ellipse cx="42" cy="25" rx="9" ry="4"/>
+        <ellipse cx="25" cy="42" rx="4" ry="9"/>
+        <ellipse cx="8"  cy="25" rx="9" ry="4"/>
+      </g>
+    </svg>
+
+    <div class="topline">Studentergilde · Sommer · 2026</div>
+    <h1>Bjarke<span class="amp">&amp;</span>Malthe</h1>
+    <div class="tag">— en varm sommerfest for to drenge —</div>
+
+    <div class="ticket">
+      <div class="tcol"><div class="l">Dato</div><div class="v">28. juni</div><div class="s">søndag</div></div>
+      <div class="tcol"><div class="l">Tid</div><div class="v">12.30</div><div class="s">og frem</div></div>
+      <div class="tcol"><div class="l">Sted</div><div class="v" style="font-size:15px;">Skovlunden 90</div><div class="s">Thyregod</div></div>
+    </div>
+
+    <div class="body-text">
+      Ja det er helt nøjagtigt <span class="hl">søndag den 28. juni kl. 12.30</span>
+      vi gerne vil invitere dig/jer til Bjarkes og Malthes studentergilde
+      på Skovlunden 90 i Thyregod.
+    </div>
+
+    <div class="menu">
+      <div class="big">Røde Lone · all you can eat</div>
+      <div class="sub">kl. 13 — 15</div>
+    </div>
+
+    <div class="body-text">
+      Vi håber på godt vejr men vil også have et telt hvis vejret ikke arter sig.
+      Senere vil der blive serveret kaffe og kage.
+      Vi håber I har lyst til at komme og fejre vores drenge sammen med os.
+    </div>
+
+    <div class="sign-l">De bedste hilsner</div>
+    <div class="sign">Morten &amp; Libber</div>
+  </div>
+
+  <div class="actions">
+    <a class="btn" id="btnIcs" download="bjarke-malthe-gilde.ics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/>
+      </svg>
+      Tilføj kalender
+    </a>
+    <button class="btn" onclick="window.print()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Print
+    </button>
+    <a class="btn" href="sms:+4524416661?&body=Tak%20for%20invitationen%20—%20vi%20kommer%20gerne!">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Send S.u.
+    </a>
+  </div>
+
+  <div class="rsvp-note">S.u. senest 1. juni · 2441 6661 · 2266 2230</div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+  // ============ .ics calendar file ============
+  function makeICS() {
+    // 28 June 2026 is in CEST (UTC+2): 12:30 local = 10:30 UTC, 17:00 local = 15:00 UTC
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Bjarke og Malthe//Studentergilde//DA',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      'UID:bjarke-malthe-studentergilde-2026-06-28@invitation',
+      'DTSTAMP:20260421T000000Z',
+      'DTSTART:20260628T103000Z',
+      'DTEND:20260628T150000Z',
+      'SUMMARY:Bjarke og Malthes studentergilde',
+      'LOCATION:Skovlunden 90\\, 7323 Thyregod',
+      'DESCRIPTION:Studentergilde for Bjarke og Malthe. Røde Lone 13-15 (all you can eat)\\, senere kaffe og kage. S.u. senest 1. juni på 2441 6661 eller 2266 2230.',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+    return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+  }
+  document.getElementById('btnIcs').href = makeICS();
+
+  // ============ Open envelope ============
+  const env   = document.getElementById('envelope');
+  const stage = document.getElementById('stageEnv');
+  const inv   = document.getElementById('stageInv');
+  let opened = false;
+
+  function openEnvelope() {
+    if (opened) return;
+    opened = true;
+    env.classList.add('opening');
+
+    // fire first confetti burst
+    fire(0.35, 0.4, 90);
+
+    setTimeout(() => {
+      stage.classList.add('gone');
+      setTimeout(() => {
+        stage.style.display = 'none';
+        inv.classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 550);
+    }, 700);
+
+    // secondary bursts
+    setTimeout(() => fire(0.15, 0.55, 45), 600);
+    setTimeout(() => fire(0.85, 0.55, 135), 900);
+    setTimeout(() => fire(0.5, 0.5, 0, 120), 1200);
+  }
+
+  // canvas-confetti setup
+  const canvas = document.getElementById('confetti-canvas');
+  const myConfetti = confetti.create(canvas, { resize: true, useWorker: true });
+
+  function fire(x, y, angle, count = 60) {
+    myConfetti({
+      particleCount: count,
+      angle: angle,
+      spread: 75,
+      startVelocity: 50,
+      origin: { x, y },
+      colors: ['#fbeede', '#f47a6a', '#e8c547', '#c8102e', '#3a1a1a', '#ffa98e']
+    });
+  }
+
+  // Click / tap
+  env.addEventListener('click', openEnvelope);
+
+  // Drag the seal upward
+  const seal = document.getElementById('seal');
+  let dragStartY = null;
+  function onDown(e) {
+    dragStartY = (e.touches ? e.touches[0].clientY : e.clientY);
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (dragStartY === null) return;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY);
+    const dy = dragStartY - y;
+    if (dy > 40) { openEnvelope(); dragStartY = null; }
+  }
+  function onUp() { dragStartY = null; }
+  seal.addEventListener('mousedown', onDown);
+  seal.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: true });
+  window.addEventListener('mouseup', onUp);
+  window.addEventListener('touchend', onUp);
+</script>
+</body>
+</html>
