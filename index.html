@@ -153,20 +153,29 @@
     font-size: 11px; letter-spacing: 7px; color: #3a1a1a;
     text-transform: uppercase; margin-bottom: 10px; opacity: 0.8;
   }
-  h1 {
-    font-family: 'DM Serif Display', serif; font-weight: 400;
-    font-size: clamp(56px, 14vw, 110px); line-height: 0.95;
-    color: #3a1a1a; letter-spacing: -2px;
-    margin: 4px 0 10px;
+  .possessor {
+    font-family: 'DM Serif Display', serif; font-style: italic;
+    font-weight: 400;
+    font-size: clamp(28px, 6.5vw, 46px); line-height: 1;
+    color: #3a1a1a; letter-spacing: -1px;
+    margin: 4px 0 2px;
   }
-  h1 .amp {
-    display: block; font-style: italic; color: #fbeede;
-    -webkit-text-stroke: 2px #3a1a1a;
-    font-size: 0.85em; margin: 4px 0;
+  .possessor .amp { color: #c8102e; margin: 0 3px; }
+  .event-title {
+    font-family: 'DM Serif Display', serif; font-weight: 400;
+    font-size: clamp(34px, 9vw, 68px); line-height: 0.95;
+    color: #3a1a1a; letter-spacing: -3px;
+    margin: 2px 0 14px;
+    text-transform: uppercase;
+  }
+  .event-title::after {
+    content: ""; display: block;
+    width: 80px; height: 3px; background: #c8102e;
+    margin: 16px auto 0;
   }
   .tag {
     font-family: 'Fraunces', serif; font-style: italic;
-    font-size: 20px; color: #3a1a1a; margin-bottom: 26px;
+    font-size: 20px; color: #3a1a1a; margin: 4px 0 26px;
   }
 
   .ticket {
@@ -296,8 +305,9 @@
       </g>
     </svg>
 
-    <div class="topline">Studentergilde · Sommer · 2026</div>
-    <h1>Bjarke<span class="amp">&amp;</span>Malthe</h1>
+    <div class="topline">Søndag 28. juni 2026 · Thyregod</div>
+    <div class="possessor">Bjarkes <span class="amp">&amp;</span> Malthes</div>
+    <h1 class="event-title">Studentergilde</h1>
     <div class="tag">— en varm sommerfest for to drenge —</div>
 
     <div class="ticket">
